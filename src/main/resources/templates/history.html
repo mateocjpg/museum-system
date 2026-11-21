@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Historial de Exhibición - Sistema de Museos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+    {#include navbar /}
+    <div class="container py-4">
+        <h1 class="mb-2">Historial de Exhibición</h1>
+        <p class="text-muted mb-4">Consulta en qué salas y en qué fechas estuvo expuesta cada obra.</p>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3"><h5 class="mb-0 text-primary">Registros de Exhibición</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3">ID</th><th>Obra</th><th>Sala</th><th>Inicio</th><th>Fin</th><th class="text-center">Acciones</th></tr></thead>
+                    <tbody>
+                        {#for h in histories}
+                        <tr>
+                            <td class="ps-3">{h.id}</td>
+                            <td><strong>{h.artifact ? h.artifact.name : '-'}</strong></td>
+                            <td>{h.room ? h.room.name : '-'}</td>
+                            <td>{h.startAt ?: '-'}</td>
+                            <td>{#if h.endAt}{h.endAt}{#else}<span class="badge bg-success">En curso</span>{/if}</td>
+                            <td class="text-center"><form action="/history/delete/{h.id}" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form></td>
+                        </tr>
+                        {#else}
+                        <tr><td colspan="6" class="text-center text-muted py-4">No hay registros de exhibición.</td></tr>
+                        {/for}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3 text-secondary"><i class="bi bi-plus-circle"></i> Registrar Exhibición</h4>
+                <form action="/history" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Obra *</label><select class="form-select" name="artifactId" required><option value="">-- Seleccionar Obra --</option>{#for a in artifacts}<option value="{a.id}">{a.name}</option>{/for}</select></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Sala *</label><select class="form-select" name="exhibitionRoomId" required><option value="">-- Seleccionar Sala --</option>{#for r in rooms}<option value="{r.id}">{r.name}</option>{/for}</select></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Inicio *</label><input type="datetime-local" class="form-control" name="startAt" required></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Fin</label><input type="datetime-local" class="form-control" name="endAt"></div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Registrar Exhibición</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

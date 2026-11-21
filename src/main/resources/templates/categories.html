@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de Categorías - Sistema de Museos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+    {#include navbar /}
+    <div class="container py-4">
+        <h1 class="mb-2">Gestión de Categorías</h1>
+        <p class="text-muted mb-4">Clasifica las obras del museo por tipo o técnica.</p>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3"><h5 class="mb-0 text-primary">Listado de Categorías</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3">ID</th><th>Nombre</th><th>Descripción</th><th class="text-center">Acciones</th></tr></thead>
+                    <tbody>
+                        {#for cat in categories}
+                        <tr>
+                            <td class="ps-3">{cat.id}</td>
+                            <td><strong>{cat.name}</strong></td>
+                            <td>{cat.description ?: '-'}</td>
+                            <td class="text-center"><form action="/categories/delete/{cat.id}" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form></td>
+                        </tr>
+                        {#else}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No hay categorías registradas.</td></tr>
+                        {/for}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3 text-secondary"><i class="bi bi-plus-circle"></i> Registrar Nueva Categoría</h4>
+                <form action="/categories" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Nombre *</label><input type="text" class="form-control" name="name" required placeholder="Ej. Pintura al Óleo"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Descripción</label><input type="text" class="form-control" name="description" placeholder="Breve descripción"></div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Guardar Categoría</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

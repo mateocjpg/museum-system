@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de Recorridos Guiados - Sistema de Museos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+    {#include navbar /}
+    <div class="container py-4">
+        <h1 class="mb-2">Gestión de Recorridos Guiados</h1>
+        <p class="text-muted mb-4">Crea recorridos y define el orden de las salas que se visitan.</p>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3"><h5 class="mb-0 text-primary">Listado de Recorridos</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3">ID</th><th>Nombre</th><th>Descripción</th><th>Inicio</th><th>Fin</th><th>Sitio Web</th><th class="text-center">Acciones</th></tr></thead>
+                    <tbody>
+                        {#for tour in tours}
+                        <tr>
+                            <td class="ps-3">{tour.id}</td>
+                            <td><strong>{tour.name}</strong></td>
+                            <td>{tour.description ?: '-'}</td>
+                            <td><small>{tour.startAt ?: '-'}</small></td>
+                            <td><small>{tour.endAt ?: '-'}</small></td>
+                            <td>{#if tour.landingPageUrl}<a href="{tour.landingPageUrl}" target="_blank" class="btn btn-sm btn-outline-primary">Visitar <i class="bi bi-box-arrow-up-right"></i></a>{#else}<span class="text-muted">-</span>{/if}</td>
+                            <td class="text-center"><form action="/tours/delete/{tour.id}" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form></td>
+                        </tr>
+                        {#else}
+                        <tr><td colspan="7" class="text-center text-muted py-4">No hay recorridos registrados.</td></tr>
+                        {/for}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3 text-secondary"><i class="bi bi-plus-circle"></i> 1. Crear Recorrido</h4>
+                <form action="/tours" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Nombre *</label><input type="text" class="form-control" name="name" required placeholder="Nombre del recorrido"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">URL página principal</label><input type="url" class="form-control" name="landingPageUrl" placeholder="https://..."></div>
+                        <div class="col-12"><label class="form-label fw-bold">Descripción</label><textarea class="form-control" name="description" rows="2"></textarea></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Inicio *</label><input type="datetime-local" class="form-control" name="startAt" required></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Fin *</label><input type="datetime-local" class="form-control" name="endAt" required></div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Crear Recorrido</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3 text-secondary"><i class="bi bi-plus-circle"></i> 2. Asignar Salas al Recorrido (orden de visita)</h4>
+                <form action="/tours/assign-room" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="form-label fw-bold">Recorrido *</label><select class="form-select" name="tourId" required><option value="">-- Seleccionar --</option>{#for tour in tours}<option value="{tour.id}">{tour.name}</option>{/for}</select></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Sala *</label><select class="form-select" name="exhibitionRoomId" required><option value="">-- Seleccionar --</option>{#for room in rooms}<option value="{room.id}">{room.name}</option>{/for}</select></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Orden *</label><input type="number" class="form-control" name="sequenceNumber" min="1" required placeholder="1, 2, 3..."></div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Agregar Sala</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3"><h5 class="mb-0 text-primary">Salas asignadas por recorrido</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3">Recorrido</th><th>Orden</th><th>Sala</th></tr></thead>
+                    <tbody>
+                        {#for tr in tourRooms}
+                        <tr>
+                            <td class="ps-3">{tr.tour ? tr.tour.name : '-'}</td>
+                            <td><span class="badge bg-primary">#{tr.sequenceNumber}</span></td>
+                            <td>{tr.room ? tr.room.name : '-'}</td>
+                        </tr>
+                        {#else}
+                        <tr><td colspan="3" class="text-center text-muted py-4">Aún no hay salas asignadas.</td></tr>
+                        {/for}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

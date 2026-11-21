@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión de Obras / Artefactos - Sistema de Museos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+    {#include navbar /}
+    <div class="container py-4">
+        <h1 class="mb-2">Gestión de Obras / Artefactos</h1>
+        <p class="text-muted mb-4">Registra las obras con su categoría, artista, estado de conservación y sala actual.</p>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3"><h5 class="mb-0 text-primary">Listado de Obras</h5></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light"><tr><th class="ps-3">ID</th><th>Imagen</th><th>Nombre</th><th>Descripción</th><th>Conservación</th><th>Creación</th><th>Adquisición</th><th>Categoría</th><th>Artista</th><th>Sala</th><th class="text-center">Acciones</th></tr></thead>
+                    <tbody>
+                        {#for item in artifacts}
+                        <tr>
+                            <td class="ps-3">{item.id}</td>
+                            <td>{#if item.imageUrl}<img src="{item.imageUrl}" alt="{item.name}" class="rounded" style="width:50px;height:50px;object-fit:cover;">{#else}<span class="text-muted">-</span>{/if}</td>
+                            <td><strong>{item.name}</strong></td>
+                            <td>{item.description ?: '-'}</td>
+                            <td><span class="badge bg-success">{item.conservationPercentage}%</span></td>
+                            <td><small>{item.createdAt ?: '-'}</small></td>
+                            <td><small>{item.acquiredAt ?: '-'}</small></td>
+                            <td>{item.category ? item.category.name : '-'}</td>
+                            <td>{item.artist ? item.artist.name : 'Anónimo'}</td>
+                            <td>{item.currentRoom ? item.currentRoom.name : '-'}</td>
+                            <td class="text-center"><form action="/artifacts/delete/{item.id}" method="post" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
+                                </form></td>
+                        </tr>
+                        {#else}
+                        <tr><td colspan="11" class="text-center text-muted py-4">No hay obras registradas.</td></tr>
+                        {/for}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3 text-secondary"><i class="bi bi-plus-circle"></i> Registrar Nueva Obra</h4>
+                <form action="/artifacts" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label fw-bold">Nombre *</label><input type="text" class="form-control" name="name" required placeholder="Nombre de la obra"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">% Conservación (0-100) *</label><input type="number" class="form-control" name="conditionPercentage" min="0" max="100" required placeholder="Ej. 90"></div>
+                        <div class="col-12"><label class="form-label fw-bold">Descripción</label><textarea class="form-control" name="description" rows="2" placeholder="Descripción..."></textarea></div>
+                        <div class="col-12"><label class="form-label fw-bold">URL de la imagen</label><input type="url" class="form-control" name="imageUrl" placeholder="https://..."></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Fecha de creación</label><input type="datetime-local" class="form-control" name="createdAt"></div>
+                        <div class="col-md-6"><label class="form-label fw-bold">Fecha de adquisición</label><input type="datetime-local" class="form-control" name="acquiredAt"></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Categoría *</label><select class="form-select" name="categoryId" required><option value="">-- Categoría --</option>{#for cat in categories}<option value="{cat.id}">{cat.name}</option>{/for}</select></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Artista</label><select class="form-select" name="artistId"><option value="">-- Opcional --</option>{#for artist in artists}<option value="{artist.id}">{artist.name}</option>{/for}</select></div>
+                        <div class="col-md-4"><label class="form-label fw-bold">Sala actual</label><select class="form-select" name="exhibitionRoomId"><option value="">-- Sin sala --</option>{#for room in rooms}<option value="{room.id}">{room.name}</option>{/for}</select></div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save"></i> Registrar Obra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
